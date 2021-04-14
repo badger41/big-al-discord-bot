@@ -10,7 +10,7 @@ dotenv.config();
  * Initialize the discord client and login.
  */
 const client = new Discord.Client();
-client.login(process.env.BOT_TOKEN);
+client.login(process.env.BIG_AL_BOT_TOKEN);
 
 /**
  * Take incoming messages and route them through the chat parsers.
