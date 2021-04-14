@@ -1,25 +1,33 @@
-import { ChatModel } from ".";
+import { ChatModel } from '.';
+import { MessageEmbed } from 'discord.js';
+
 interface SkinModel {
   name: string;
   hexCode: number;
 }
-const skinCommands: string[] = ["!skinCode", "!unlockSkins", "!skins"];
+interface SkinCode {
+  name: string;
+  code: string;
+}
+
+const skinCommands: string[] = ['!skinCode', '!unlockSkins', '!skins'];
 const snarkyRemarks: string[] = [
-  "pfft, amateur. Give me a challenge next time.",
-  "look's like I'm doing all the work, as usual.",
+  'pfft, amateur. Give me a challenge next time.',
+  "look's like I'm doing all the work, as usual...",
   "here's your cheat codes... you can thank me later.",
-  "aaaaaaand done!",
+  'aaaaaaand done!',
   "_you're welcome..._",
 ];
 const skins = [
-  { name: "Nefarious", hexCode: 0xe1234567 },
-  { name: "Dan", hexCode: 0xe76b492c },
-  { name: "Mr. Sunshine", hexCode: 0x14202239 },
-  { name: "Jak", hexCode: 0x02050710 },
-  { name: "Renegade", hexCode: 0x26e41939 },
-  { name: "Eugene", hexCode: 0x2dafbf84 },
-  { name: "Vernon", hexCode: 0xcc97b7af },
+  { name: 'Nefarious', hexCode: 0xe1234567 },
+  { name: 'Dan', hexCode: 0xe76b492c },
+  { name: 'Mr. Sunshine', hexCode: 0x14202239 },
+  { name: 'Jak', hexCode: 0x02050710 },
+  { name: 'Renegade', hexCode: 0x26e41939 },
+  { name: 'Eugene', hexCode: 0x2dafbf84 },
+  { name: 'Vernon', hexCode: 0xcc97b7af },
 ];
+
 export function skinRequest(model: ChatModel) {
   if (!skinCommands.includes(model.command)) return;
   if (!model.args || model.args.length < 1) {
@@ -27,15 +35,26 @@ export function skinRequest(model: ChatModel) {
       "you didn't specify a username! \n `!skins Agent Moose` for example."
     );
   } else {
-    const username = model.args.join(" ").trim();
+    const username = model.args.join(' ').trim();
     const usernameCode = processUsername(username.toUpperCase());
     const codes = getSkinCodes(usernameCode);
-    const codeString =
-      "```" + `Skin codes for ${username}.\n\n` + codes.join("\n") + "```";
-    model.rawMessage.reply(
-      `${snarkyRemarks[randomInt(snarkyRemarks.length)]}\n \n${codeString}`
-    );
+
+    model.rawMessage.reply([createEmbed(username, codes)]);
+    model.rawMessage.reply(`${snarkyRemarks[randomInt(snarkyRemarks.length)]}`);
   }
+}
+
+function createEmbed(username: string, skinCodes: SkinCode[]) {
+  let skinEmbed = new MessageEmbed()
+    .setColor('#0080FF')
+    .setTitle(username)
+    .setDescription('Your cheat codez')
+    .addFields({ name: '\u200B', value: '\u200B' });
+
+  for (let skinCode of skinCodes) {
+    skinEmbed.addFields({ name: skinCode.name, value: skinCode.code });
+  }
+  return skinEmbed;
 }
 
 function randomInt(max: number) {
@@ -60,14 +79,14 @@ function processUsername(username: string) {
 }
 
 function getSkinCodes(usernameResult: number) {
-  let skinCodes: string[] = [];
+  let skinCodes: SkinCode[] = [];
   // Loop through all Skins
   for (let skin of skins) {
     // First multiply the Skin and UsernameVariable
     let cheat = (skin.hexCode * usernameResult)
       .toString(16) // Convert to string as a hexadecimal value
       .slice(-8) // Makes sure to only get the last eight characters of the final value.  We don't need anything more.
-      .split("") // Splits the value to seperate each character
+      .split('') // Splits the value to seperate each character
       .reverse(); // Reverse the value to match the endianness of the PS2
 
     // This calls the function "createCheat".
@@ -79,31 +98,31 @@ function getSkinCodes(usernameResult: number) {
 }
 
 function createCheat(skin: SkinModel, finalValue: string[]) {
-  let codeString: string = skin.name.padEnd(16) + ": ";
+  let codeString: string = '';
   // Map hex values to D-pad values
   const codeMap = [
     {
-      codes: ["0", "1", "2", "3"],
-      text: "Up",
+      codes: ['0', '1', '2', '3'],
+      text: 'Up',
     },
     {
-      codes: ["4", "5", "6", "7"],
-      text: "Down",
+      codes: ['4', '5', '6', '7'],
+      text: 'Down',
     },
     {
-      codes: ["8", "9", "a", "b"],
-      text: "Left",
+      codes: ['8', '9', 'a', 'b'],
+      text: 'Left',
     },
     {
-      codes: ["c", "d", "e", "f"],
-      text: "Right",
+      codes: ['c', 'd', 'e', 'f'],
+      text: 'Right',
     },
   ];
 
   // Loop through each of the byte in the Final Value to get d-pad value.
   for (let a of finalValue) {
-    codeString += " " + codeMap.find((cm) => cm.codes.includes(a))?.text || "?";
+    codeString += ' ' + codeMap.find((cm) => cm.codes.includes(a))?.text || '?';
   }
 
-  return codeString;
+  return { name: skin.name, code: codeString };
 }
