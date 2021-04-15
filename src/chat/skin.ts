@@ -2,10 +2,12 @@ import { ChatModel } from '.';
 import { MessageEmbed } from 'discord.js';
 
 interface SkinModel {
+  key: string;
   name: string;
   hexCode: number;
 }
 interface SkinCode {
+  key: string;
   name: string;
   code: string;
 }
@@ -19,13 +21,13 @@ const snarkyRemarks: string[] = [
   "_you're welcome..._",
 ];
 const skins = [
-  { name: 'Nefarious', hexCode: 0xe1234567 },
-  { name: 'Dan', hexCode: 0xe76b492c },
-  { name: 'Mr. Sunshine', hexCode: 0x14202239 },
-  { name: 'Jak', hexCode: 0x02050710 },
-  { name: 'Renegade', hexCode: 0x26e41939 },
-  { name: 'Eugene', hexCode: 0x2dafbf84 },
-  { name: 'Vernon', hexCode: 0xcc97b7af },
+  { key: 'UYA', name: 'Nefarious', hexCode: 0xe1234567 },
+  { key: 'UYA', name: 'Dan', hexCode: 0xe76b492c },
+  { key: 'DL', name: 'Mr. Sunshine', hexCode: 0x14202239 },
+  { key: 'DL', name: 'Jak', hexCode: 0x02050710 },
+  { key: 'DL', name: 'Renegade', hexCode: 0x26e41939 },
+  { key: 'DL', name: 'Eugene', hexCode: 0x2dafbf84 },
+  { key: 'DL', name: 'Vernon', hexCode: 0xcc97b7af },
 ];
 
 export function skinRequest(model: ChatModel) {
@@ -51,7 +53,16 @@ function createEmbed(username: string, skinCodes: SkinCode[]) {
     .setDescription('Your cheat codez')
     .addFields({ name: '\u200B', value: '\u200B' });
 
-  for (let skinCode of skinCodes) {
+  skinEmbed.addFields({
+    name: 'Ratchet & Clank: Up Your Arsenal',
+    value: '\u200B',
+  });
+  for (let skinCode of skinCodes.filter((s) => s.key == 'UYA')) {
+    skinEmbed.addFields({ name: skinCode.name, value: skinCode.code });
+  }
+  skinEmbed.addFields({ name: '\u200B', value: '\u200B' });
+  skinEmbed.addFields({ name: 'Ratchet: Deadlocked ', value: '\u200B' });
+  for (let skinCode of skinCodes.filter((s) => s.key == 'DL')) {
     skinEmbed.addFields({ name: skinCode.name, value: skinCode.code });
   }
   return skinEmbed;
@@ -124,5 +135,5 @@ function createCheat(skin: SkinModel, finalValue: string[]) {
     codeString += ' ' + codeMap.find((cm) => cm.codes.includes(a))?.text || '?';
   }
 
-  return { name: skin.name, code: codeString };
+  return { key: skin.key, name: skin.name, code: codeString };
 }
