@@ -102,13 +102,15 @@ function createEmbed(onlinePlayers: AccountStatus[]) {
     .setFooter('Last Updated')
     .setTimestamp(new Date())
     .setDescription(
-      '```' +
-        playerNames
-          .sort((a, b) => b.localeCompare(a))
-          .reverse()
-          .map((p) => `\n  ${p}  `)
-          .join(' ') +
-        '```'
+      playerNames.length > 0
+        ? '```' +
+            playerNames
+              .sort((a, b) => b.localeCompare(a))
+              .reverse()
+              .map((p) => `\n  ${p}  `)
+              .join(' ') +
+            '```'
+        : ' '
     )
     .addFields({ name: '\u200B', value: 'Active Games:' });
 
