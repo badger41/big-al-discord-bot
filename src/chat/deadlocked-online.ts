@@ -45,7 +45,7 @@ async function authenticate() {
  * Grab all online accounts and the games they are in.
  */
 async function checkPlayersAndGames() {
-  console.log('checking players');
+  console.log('checking dl players');
   const result = await fetch(
     `https://${serverUrl}:${serverPort}/Account/getOnlineAccounts`,
     {
