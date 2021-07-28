@@ -71,7 +71,8 @@ function createEmbed(onlinePlayers: RoboUYAPlayer[], games: RoboUYAGame[]) {
       let inProgress = started_date > 0 ? ' (In Progess)' : '';
       let decodedName = Buffer.from(game_name, 'base64')
         .toString('ascii')
-        .split('    ')[0];
+        .slice(0, 16)
+        .trim();
       onlineEmbed.addFields({
         name:
           decodedName + `  -  (${players.length}/${max_players})${inProgress}`,
