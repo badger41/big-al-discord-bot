@@ -66,22 +66,25 @@ function createEmbed(onlinePlayers: RoboUYAPlayer[], games: RoboUYAGame[]) {
   for (let game of games) {
     const { max_players, players, game_name, started_date } = game;
     let lobbyPlayerNames = players.map((p) => p.username);
-    let inProgress = started_date > 0 ? ' (In Progess)' : '';
-    let decodedName = Buffer.from(game_name, 'base64')
-      .toString('ascii')
-      .split('    ')[0];
-    onlineEmbed.addFields({
-      name:
-        decodedName + `  -  (${players.length}/${max_players})${inProgress}`,
-      value:
-        '```' +
-        lobbyPlayerNames
-          .sort((a, b) => b.localeCompare(a))
-          .reverse()
-          .map((p) => `\n  ${p}  `)
-          .join(' ') +
-        '```',
-    });
+
+    if (lobbyPlayerNames.length > 0) {
+      let inProgress = started_date > 0 ? ' (In Progess)' : '';
+      let decodedName = Buffer.from(game_name, 'base64')
+        .toString('ascii')
+        .split('    ')[0];
+      onlineEmbed.addFields({
+        name:
+          decodedName + `  -  (${players.length}/${max_players})${inProgress}`,
+        value:
+          '```' +
+          lobbyPlayerNames
+            .sort((a, b) => b.localeCompare(a))
+            .reverse()
+            .map((p) => `\n  ${p}  `)
+            .join(' ') +
+          '```',
+      });
+    }
   }
 
   if (Array.from(games).length < 1) {
