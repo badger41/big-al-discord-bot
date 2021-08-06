@@ -1,6 +1,6 @@
 import Discord, { TextChannel, MessageEmbed, Message } from 'discord.js';
 import fetch from 'node-fetch';
-import { AccountStatus } from './types';
+import { AccountStatus, GameLobby, MetaDataSettings, Level, GameMode, Emojis } from './types';
 import * as dotenv from 'dotenv';
 /**
  * Initialize dotenv so we can easily access custom env variables.
@@ -16,6 +16,22 @@ const channelId = process.env.DL_PLAYERS_ONLINE_CHANNEL_ID;
 let token: string;
 let client: Discord.Client;
 let existingMessage: Message;
+
+const bitIndexToEquipmentName = new Map([
+  [21, 'Chargeboots'],
+  [7, 'Dual Vipers'],
+  [8, 'Magma Cannon'],
+  [9, 'Arbiter'],
+  [10, 'Fusion Rifle'],
+  [11, 'Mine Launcher'],
+  [12, 'B6'],
+  [13, 'Holoshield'],
+  [18, 'Flail'],
+  [0, 'Hoverbike'],
+  [1, 'Hovership'],
+  [2, 'Puma'],
+  [3, 'Landstalker']
+]);
 
 /**
  * This function authenticates to the DL server to grab a token.
@@ -44,7 +60,7 @@ async function authenticate() {
 /**
  * Grab all online accounts
  */
-async function checkPlayersAndGames() {
+async function getPlayersAndGames() {
   console.log('checking dl players');
   const result = await fetch(
     `https://${serverUrl}:${serverPort}/Account/getOnlineAccounts`,
@@ -57,8 +73,7 @@ async function checkPlayersAndGames() {
     }
   );
   if (result.ok) {
-    let response = await result.json();
-    processOnlinePlayers(<AccountStatus[]>response);
+    return await result.json();
   } else {
     throw new Error(await result.json());
   }
@@ -67,9 +82,9 @@ async function checkPlayersAndGames() {
 /**
  * Grab all current games
  */
-async function checkGames() {
+export async function getGames() {
   console.log('checking dl games');
-  const result = await fetch(`https://${serverUrl}:${serverPort}/api/Game`, {
+  const result = await fetch(`https://${serverUrl}:${serverPort}/api/Game/list`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -77,19 +92,18 @@ async function checkGames() {
     },
   });
   if (result.ok) {
-    let response = await result.json();
-    processOnlinePlayers(<AccountStatus[]>response);
+    return await result.json();
   } else {
     throw new Error(await result.json());
   }
 }
 
-async function processOnlinePlayers(players: AccountStatus[]) {
+async function processOnlinePlayers(players: AccountStatus[], games: GameLobby[]) {
   const channelId = process.env.DL_PLAYERS_ONLINE_CHANNEL_ID;
   if (channelId) {
     const channel = client.channels.cache.get(channelId);
     if (channel?.isText) {
-      let embed = createEmbed(players);
+      let embed = createEmbed(players, games);
       if (existingMessage) existingMessage.edit(embed);
       else {
         existingMessage = await (<TextChannel>channel).send(embed);
@@ -106,14 +120,13 @@ export async function checkOnlineDLPlayers(_client: Discord.Client) {
   client = _client;
   if (!token) await authenticate();
 
-  await checkPlayersAndGames();
+  let accountStatuses = await getPlayersAndGames();
+  let games = await getGames();
+  
+  processOnlinePlayers(accountStatuses, games);
 }
 
-function createEmbed(onlinePlayers: AccountStatus[]) {
-  // Construct a list of current lobbies based on the players
-  let lobbies = new Set<string>();
-  onlinePlayers.map((p) => p.GameName && lobbies.add(p.GameName));
-
+function createEmbed(onlinePlayers: AccountStatus[], games: GameLobby[]) {
   let playerNames = onlinePlayers.map((p) => p.AccountName);
   let onlineEmbed = new MessageEmbed()
     .setColor('#AA0000')
@@ -134,13 +147,21 @@ function createEmbed(onlinePlayers: AccountStatus[]) {
     )
     .addFields({ name: '\u200B', value: 'Active Games:' });
 
-  for (let lobby of lobbies) {
+  for (let game of games.filter((g) => g.WorldStatus == 'WorldActive' || g.WorldStatus == 'WorldStaging')) {
+    let metadata: MetaDataSettings = JSON.parse(game.Metadata);
+    let equipmentNames = getEquipmentNames(game) ?? [];
+    let defaultSkillEmoji = Emojis.get('Rank 1');
+    let skillEmoji = Emojis.get(`Rank ${game.PlayerSkillLevel}`) ?? defaultSkillEmoji;
     let lobbyPlayers = onlinePlayers
-      .filter((a) => a.GameName == lobby)
+      .filter((a) => a.GameId == game.GameId)
       .map((a) => a.AccountName);
     onlineEmbed.addFields({
-      name: lobby + `  -  (${lobbyPlayers.length}/10)`,
+      name: (game.WorldStatus == "WorldActive" ? '[IG] \u200B ' : '') + `${skillEmoji} \u200B ` + game.GameName + `  -  (${lobbyPlayers.length}/10)`,
       value:
+        equipmentNames.map((n) => `${Emojis.get(n)}`).filter((n) => n != '').join(' ') + '\n' +
+        '```\n' +
+        (metadata.CustomGameMode ?? GameMode[game.RuleSet]) + ' at ' +(metadata.CustomMap ?? Level[game.GameLevel]) + '\n' +
+        '```\n' + 
         '```' +
         lobbyPlayers
           .sort((a, b) => b.localeCompare(a))
@@ -151,7 +172,7 @@ function createEmbed(onlinePlayers: AccountStatus[]) {
     });
   }
 
-  if (Array.from(lobbies).length < 1) {
+  if (games.length < 1) {
     onlineEmbed.addFields({
       name: 'No Games',
       value: '\u200B',
@@ -161,4 +182,21 @@ function createEmbed(onlinePlayers: AccountStatus[]) {
   onlineEmbed.addFields({ name: '\u200B', value: '\u200B' });
 
   return onlineEmbed;
+}
+
+function getEquipmentNames(game: GameLobby) {
+  let names: string[] = [];
+  if (game.GenericField6 == null)
+    return names;
+
+  for (let key of bitIndexToEquipmentName.keys()) {
+    if ((game.GenericField6 & (1 << key)) != 0) {
+      let value = bitIndexToEquipmentName.get(key);
+      if (value != null) {
+        names.push(value);
+      }
+    }
+  }
+
+  return names;
 }
