@@ -42,7 +42,7 @@ async function authenticate() {
 }
 
 /**
- * Grab all online accounts and the games they are in.
+ * Grab all online accounts
  */
 async function checkPlayersAndGames() {
   console.log('checking dl players');
@@ -56,6 +56,26 @@ async function checkPlayersAndGames() {
       },
     }
   );
+  if (result.ok) {
+    let response = await result.json();
+    processOnlinePlayers(<AccountStatus[]>response);
+  } else {
+    throw new Error(await result.json());
+  }
+}
+
+/**
+ * Grab all current games
+ */
+async function checkGames() {
+  console.log('checking dl games');
+  const result = await fetch(`https://${serverUrl}:${serverPort}/api/Game`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
   if (result.ok) {
     let response = await result.json();
     processOnlinePlayers(<AccountStatus[]>response);
