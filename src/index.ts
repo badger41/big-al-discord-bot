@@ -25,12 +25,12 @@ client.on('ready', () => {
       Number(process.env.DL_PLAYERS_ONLINE_INTERVAL) || 60000
     );
   }
-  if (process.env.UYA_PLAYERS_ONLINE_ENABLED === 'true') {
-    client.setInterval(
-      () => checkOnlineUYAPlayers(client),
-      Number(process.env.UYA_PLAYERS_ONLINE_INTERVAL) || 60000
-    );
-  }
+  // if (process.env.UYA_PLAYERS_ONLINE_ENABLED === 'true') {
+  //   client.setInterval(
+  //     () => checkOnlineUYAPlayers(client),
+  //     Number(process.env.UYA_PLAYERS_ONLINE_INTERVAL) || 60000
+  //   );
+  // }
 });
 
 /**
