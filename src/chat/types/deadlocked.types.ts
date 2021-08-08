@@ -32,8 +32,8 @@ export interface GameLobby {
   WorldStatus: string;
   GameHostType: string;
   Metadata: string;
-  GameCreateDt?: Date;
-  GameStartDt?: Date;
+  GameCreateDt?: string;
+  GameStartDt?: string;
 }
 
 export interface MetaDataSettings {
@@ -41,6 +41,7 @@ export interface MetaDataSettings {
   CustomGameMode?: string;
   CustomMap?: string;
   CustomRules?: string[];
+  GameInfo?: string;
 }
 
 export enum Level {

@@ -1,5 +1,6 @@
 import Discord, { TextChannel, MessageEmbed, Message } from 'discord.js';
 import fetch from 'node-fetch';
+import Moment from 'moment';
 import {
   AccountStatus,
   GameLobby,
@@ -106,7 +107,14 @@ export async function getGames() {
     }
   );
   if (result.ok) {
-    return await result.json();
+    let games = await result.json();
+
+    for (let game of games) {
+      //game.GameCreateDt = game.GameCreateDt && Date.parse(game.GameCreateDt as string);
+      //game.GameStartDt = game.GameStartDt && Date.parse(game.GameStartDt as string);
+    }
+
+    return games;
   } else {
     throw new Error(await result.json());
   }
@@ -164,12 +172,19 @@ function createEmbed(onlinePlayers: AccountStatus[], games: GameLobby[]) {
     )
     .addFields({ name: '\u200B', value: 'Active Games:' });
 
-  for (let game of games.filter(
-    (g) => g.WorldStatus == 'WorldActive' || g.WorldStatus == 'WorldStaging'
-  )) {
+  for (let game of games
+    .filter(
+      (g) => g.WorldStatus == 'WorldActive' || g.WorldStatus == 'WorldStaging'
+    )
+    .sort(
+      (a, b) => b.GameName.localeCompare(a.GameName)
+    )
+  ) {
     let metadata: MetaDataSettings = JSON.parse(game.Metadata);
     let equipmentNames = getEquipmentNames(game) ?? [];
     let defaultSkillEmoji = Emojis.get('Rank 1');
+    let isInGame = game.WorldStatus == 'WorldActive';
+    let timeSinceStarted = isInGame && game.GameStartDt ? Moment.duration(Moment.utc().diff(Moment.utc(game.GameStartDt))) : null;
     let skillEmoji =
       Emojis.get(`Rank ${game.PlayerSkillLevel}`) ?? defaultSkillEmoji;
     let lobbyPlayers = onlinePlayers
@@ -177,10 +192,11 @@ function createEmbed(onlinePlayers: AccountStatus[], games: GameLobby[]) {
       .map((a) => a.AccountName);
     onlineEmbed.addFields({
       name:
-        (game.WorldStatus == 'WorldActive' ? '[IG] \u200B ' : '') +
+        (isInGame ? '[IG] \u200B ' : '') +
         `${skillEmoji} \u200B ` +
         game.GameName +
-        `  -  (${lobbyPlayers.length}/10)`,
+        `  -  (${lobbyPlayers.length}/10)` +
+        (timeSinceStarted && timeSinceStarted.asHours() >= 0 ? ` @${Math.floor(timeSinceStarted.asHours())}:${pad(timeSinceStarted.minutes().toString(), 2)}:${pad(timeSinceStarted.seconds().toString(), 2)}` : ''),
       value:
         equipmentNames
           .map((n) => `${Emojis.get(n)}`)
@@ -191,8 +207,8 @@ function createEmbed(onlinePlayers: AccountStatus[], games: GameLobby[]) {
         (metadata.CustomGameMode ?? GameMode[game.RuleSet]) +
         ' at ' +
         (metadata.CustomMap ?? Level[game.GameLevel]) +
-        '\n' +
-        '```\n' +
+        (metadata.GameInfo ? metadata.GameInfo : '') +
+        '\n```\n' +
         '```' +
         lobbyPlayers
           .sort((a, b) => b.localeCompare(a))
@@ -229,4 +245,8 @@ function getEquipmentNames(game: GameLobby) {
   }
 
   return names;
+}
+
+function pad(str: string, length: number): string {
+  return str.length < length ? pad("0" + str, length) : str;
 }
