@@ -98,7 +98,7 @@ export function queueUYAGamesUpdated(client: Discord.Client, games: any[]) {
   let alertChannelId = getUYAQueueAlertChannelId();
   
   if (newGames.length > 0) {
-    alertRole(client, alertChannelId, contestantRoleId, `new Up Your Arsenal games are available at <#${onlinePlayersChannelId}>: ${newGames.map(x=> x.GameName).join(', ')}`);
+    alertRole(client, alertChannelId, contestantRoleId, `new Up Your Arsenal games are available at <#${onlinePlayersChannelId}>: ${newGames.map(x=> getUYAGameName(x)).join(', ')}`);
   }
 
   lastUYAGames = games.map(x=>x.Id);
@@ -242,4 +242,10 @@ function getUYAQueueAlertChannelId() {
 
 function getUYAContestantRoleId() {
   return process.env.UYA_QUEUE_CONTESTANT_ROLE_ID as string;
+}
+
+function getUYAGameName(game: any) {
+  let name64 = game.game_name;
+  let name = Buffer.from(name64, 'base64').toString();
+  return name.substring(0, 16).trim();
 }

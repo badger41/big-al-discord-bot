@@ -1,6 +1,7 @@
 import Discord, { TextChannel, MessageEmbed, Message } from 'discord.js';
 import fetch from 'node-fetch';
 import { RoboUYAGame, RoboUYAPlayer } from './types';
+import { queueUYAGamesUpdated } from './queue';
 import * as dotenv from 'dotenv';
 /**
  * Initialize dotenv so we can easily access custom env variables.
@@ -19,6 +20,7 @@ async function checkPlayersAndGames() {
   if (playersResult.ok && gamesResult.ok) {
     let players = (await playersResult.json()) as RoboUYAPlayer[];
     let games = (await gamesResult.json()) as RoboUYAGame[];
+    queueUYAGamesUpdated(client, games);
     processOnlineData(players, games);
   } else {
     if (!playersResult.ok) throw new Error(await playersResult.json());
