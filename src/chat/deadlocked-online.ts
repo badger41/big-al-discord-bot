@@ -1,6 +1,7 @@
 import Discord, { TextChannel, MessageEmbed, Message } from 'discord.js';
 import fetch from 'node-fetch';
 import Moment from 'moment';
+import { queueDLGamesUpdated } from './queue';
 import {
   AccountStatus,
   GameLobby,
@@ -107,14 +108,7 @@ export async function getGames() {
     }
   );
   if (result.ok) {
-    let games = await result.json();
-
-    for (let game of games) {
-      //game.GameCreateDt = game.GameCreateDt && Date.parse(game.GameCreateDt as string);
-      //game.GameStartDt = game.GameStartDt && Date.parse(game.GameStartDt as string);
-    }
-
-    return games;
+    return await result.json();
   } else {
     throw new Error(await result.json());
   }
@@ -148,6 +142,7 @@ export async function checkOnlineDLPlayers(_client: Discord.Client) {
   let accountStatuses = await getPlayersAndGames();
   let games = await getGames();
 
+  queueDLGamesUpdated(_client, games);
   processOnlinePlayers(accountStatuses, games);
 }
 
