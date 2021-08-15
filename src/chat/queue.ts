@@ -23,12 +23,12 @@ let lastUYAGames: Number[] = [];
 
 // 
 export async function checkQueueDL(client: Discord.Client) {
-  await checkQueue(client, 'dl');
+  await checkQueue(client, queueDLGames[0]);
 }
 
 // 
 export async function checkQueueUYA(client: Discord.Client) {
-  await checkQueue(client, 'uya');
+  await checkQueue(client, queueDLGames[0]);
 }
 
 export async function clearQueueRole(client: Discord.Client) {
@@ -206,9 +206,9 @@ function getExpirationTime(duration: moment.Duration) {
 function getUsageExample() {
   let result = "Use ";
   if (isDLQueueEnabled())
-    result += "`!queue dl` ";
+    result += `\`!queue ${queueDLGames[0]}\` `;
   if (isUYAQueueEnabled())
-    result += "`!queue uya`";
+    result += `\`!queue ${queueUYAGames[0]}\` `;
   return result;
 }
 
