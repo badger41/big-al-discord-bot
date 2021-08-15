@@ -13,7 +13,7 @@ const apiUrl = process.env.UYA_SERVER_API_URL;
 const channelId = process.env.UYA_PLAYERS_ONLINE_CHANNEL_ID;
 
 async function checkPlayersAndGames() {
-  console.log('checking uya players and games');
+  //console.log('checking uya players and games');
   const playersResult = await fetch(`${apiUrl}/robo/players`);
   const gamesResult = await fetch(`${apiUrl}/robo/games`);
   if (playersResult.ok && gamesResult.ok) {
@@ -73,6 +73,13 @@ function createEmbed(onlinePlayers: RoboUYAPlayer[], games: RoboUYAGame[]) {
         .toString('ascii')
         .slice(0, 16)
         .trim();
+      let suffix = Buffer.from(game_name, 'base64')
+        .toString('ascii')
+        .slice(16)
+        .trim();
+
+      decodedName === "B41's" &&
+        console.log(decodedName, suffix, game.generic_field_3);
       onlineEmbed.addFields({
         name:
           decodedName + `  -  (${players.length}/${max_players})${inProgress}`,
