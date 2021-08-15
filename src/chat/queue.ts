@@ -2,7 +2,7 @@ import Discord, { TextChannel, MessageEmbed, Message } from 'discord.js';
 import { ChatModel } from '.';
 import moment, { duration } from 'moment';
 
-const queueCommands: string[] = ['!queue'];
+const queueCommands: string[] = ['!notify'];
 const queueDLGames: string[] = ['dl','deadlocked','gladiator','rac4'];
 const queueUYAGames: string[] = ['uya','rac3'];
 
@@ -92,7 +92,8 @@ export function queueDLGamesUpdated(client: Discord.Client, games: any[]) {
 export function queueUYAGamesUpdated(client: Discord.Client, games: any[]) {
   if (!isUYAQueueEnabled()) return;
 
-  let newGames = games.filter(x=> !lastUYAGames.includes(x.Id));
+  let validGames = games.filter(x => x.players.length > 0);
+  let newGames = validGames.filter(x=> !lastUYAGames.includes(x.dme_world_id) && x.status == 1);
   let contestantRoleId = getUYAContestantRoleId();
   let onlinePlayersChannelId = getUYAOnlinePlayersChannelId();
   let alertChannelId = getUYAQueueAlertChannelId();
@@ -101,7 +102,7 @@ export function queueUYAGamesUpdated(client: Discord.Client, games: any[]) {
     alertRole(client, alertChannelId, contestantRoleId, `new Up Your Arsenal games are available at <#${onlinePlayersChannelId}>: ${newGames.map(x=> getUYAGameName(x)).join(', ')}`);
   }
 
-  lastUYAGames = games.map(x=>x.Id);
+  lastUYAGames = validGames.map(x=>x.dme_world_id);
 }
 
 async function dlQueue(model: ChatModel) {
@@ -118,7 +119,7 @@ async function dlQueue(model: ChatModel) {
     updateTimestamp(model.sender.id, role.id, queueDLGames[0], model.rawMessage.guild?.id ?? '', duration);
 
     // reply to user
-    model.rawMessage.reply(`you've been added to the Deadlocked queue for ${duration.asMinutes()} minute(s).`);
+    model.rawMessage.reply(`I've registered you as a contestant for the next ${duration.asMinutes()} minutes. I will notify you when new games are available.`);
   }
 }
 
@@ -136,7 +137,7 @@ async function uyaQueue(model: ChatModel) {
     updateTimestamp(model.sender.id, role.id, queueUYAGames[0], model.rawMessage.guild?.id ?? '', duration);
 
     // reply to user
-    model.rawMessage.reply(`you've been added to the Up Your Arsenal queue for ${duration.asMinutes()} minute(s).`);
+    model.rawMessage.reply(`I've put you into the ranger reserves for the next ${duration.asMinutes()} minutes. I will notify you when new games are available.`);
   }
 }
 
@@ -206,9 +207,9 @@ function getExpirationTime(duration: moment.Duration) {
 function getUsageExample() {
   let result = "Use ";
   if (isDLQueueEnabled())
-    result += `\`!queue ${queueDLGames[0]}\` `;
+    result += `\`${queueCommands[0]} ${queueDLGames[0]}\` `;
   if (isUYAQueueEnabled())
-    result += `\`!queue ${queueUYAGames[0]}\` `;
+    result += `\`${queueCommands[0]} ${queueUYAGames[0]}\` `;
   return result;
 }
 
