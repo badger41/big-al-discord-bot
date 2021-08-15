@@ -7,5 +7,6 @@ export * from "./types";
  * Import all of the applicable chat commands.
  */
 import { skinRequest } from "./skin";
+import { queueRequest } from "./queue";
 
-export const commands = [skinRequest];
+export const commands = [skinRequest,queueRequest];
