@@ -75,13 +75,7 @@ function createEmbed(onlinePlayers: RoboUYAPlayer[], games: RoboUYAGame[]) {
         .toString('ascii')
         .slice(0, 16)
         .trim();
-      let suffix = Buffer.from(game_name, 'base64')
-        .toString('ascii')
-        .slice(16)
-        .trim();
 
-      decodedName === "B41's" &&
-        console.log(decodedName, suffix, game.generic_field_3);
       onlineEmbed.addFields({
         name:
           decodedName + `  -  (${players.length}/${max_players})${inProgress}`,
