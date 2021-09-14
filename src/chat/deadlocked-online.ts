@@ -171,15 +171,15 @@ function createEmbed(onlinePlayers: AccountStatus[], games: GameLobby[]) {
     .filter(
       (g) => g.WorldStatus == 'WorldActive' || g.WorldStatus == 'WorldStaging'
     )
-    .sort(
-      (a, b) => b.GameName.localeCompare(a.GameName)
-    )
-  ) {
-    let metadata: MetaDataSettings = JSON.parse(game.Metadata);
+    .sort((a, b) => b.GameName.localeCompare(a.GameName))) {
+    let metadata: MetaDataSettings = JSON.parse(game.Metadata) || {};
     let equipmentNames = getEquipmentNames(game) ?? [];
     let defaultSkillEmoji = Emojis.get('Rank 1');
     let isInGame = game.WorldStatus == 'WorldActive';
-    let timeSinceStarted = isInGame && game.GameStartDt ? Moment.duration(Moment.utc().diff(Moment.utc(game.GameStartDt))) : null;
+    let timeSinceStarted =
+      isInGame && game.GameStartDt
+        ? Moment.duration(Moment.utc().diff(Moment.utc(game.GameStartDt)))
+        : null;
     let skillEmoji =
       Emojis.get(`Rank ${game.PlayerSkillLevel}`) ?? defaultSkillEmoji;
     let lobbyPlayers = onlinePlayers
@@ -191,7 +191,12 @@ function createEmbed(onlinePlayers: AccountStatus[], games: GameLobby[]) {
         `${skillEmoji} \u200B ` +
         game.GameName +
         `  -  (${lobbyPlayers.length}/10)` +
-        (timeSinceStarted && timeSinceStarted.asHours() >= 0 ? ` @${Math.floor(timeSinceStarted.asHours())}:${pad(timeSinceStarted.minutes().toString(), 2)}:${pad(timeSinceStarted.seconds().toString(), 2)}` : ''),
+        (timeSinceStarted && timeSinceStarted.asHours() >= 0
+          ? ` @${Math.floor(timeSinceStarted.asHours())}:${pad(
+              timeSinceStarted.minutes().toString(),
+              2
+            )}:${pad(timeSinceStarted.seconds().toString(), 2)}`
+          : ''),
       value:
         equipmentNames
           .map((n) => `${Emojis.get(n)}`)
@@ -243,5 +248,5 @@ function getEquipmentNames(game: GameLobby) {
 }
 
 function pad(str: string, length: number): string {
-  return str.length < length ? pad("0" + str, length) : str;
+  return str.length < length ? pad('0' + str, length) : str;
 }
