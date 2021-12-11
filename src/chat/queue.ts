@@ -28,7 +28,7 @@ export async function checkQueueDL(client: Discord.Client) {
 
 // 
 export async function checkQueueUYA(client: Discord.Client) {
-  await checkQueue(client, queueDLGames[0]);
+  await checkQueue(client, queueUYAGames[0]);
 }
 
 export async function clearQueueRole(client: Discord.Client) {
