@@ -1,8 +1,9 @@
-import Discord from 'discord.js';
+import Discord, { MessageReaction, TextChannel } from 'discord.js';
 import { commands, ChatModel } from './chat';
 import { checkOnlineDLPlayers } from './chat/deadlocked-online';
 import { checkOnlineUYAPlayers } from './chat/uya-online';
 import { clearQueueRole, checkQueueDL, checkQueueUYA } from './chat/queue';
+import { initMessageReactionMonitor } from './chat/reaction-monitor';
 import * as dotenv from 'dotenv';
 /**
  * Initialize dotenv so we can easily access custom env variables.
@@ -38,14 +39,15 @@ client.on('ready', () => {
     client.setInterval(
       () => checkQueueDL(client),
       Number(process.env.DL_QUEUE_INTERVAL) || 60000
-    )
+    );
   }
   if (process.env.UYA_QUEUE_ENABLED === 'true') {
     client.setInterval(
       () => checkQueueUYA(client),
       Number(process.env.UYA_QUEUE_INTERVAL) || 60000
-    )
+    );
   }
+  initMessageReactionMonitor(client);
 });
 
 /**
