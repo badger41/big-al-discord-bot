@@ -2,7 +2,7 @@ const UYA_REACTIONS: { [emoji: string]: string } = {
   // Nefarious - UYA Players
   '752680088125964418': '807713673132113951',
   // Sheepinator Icon - UYA Casuals
-  '876271858947870750': '909561632995282994',
+  '876267367766843402': '909561632995282994',
 };
 
 const DL_REACTIONS: { [emoji: string]: string } = {
