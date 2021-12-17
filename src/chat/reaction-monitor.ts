@@ -43,27 +43,29 @@ export function initMessageReactionMonitor(client: Client) {
  */
 function syncReactions(message: Message, channel: TextChannel) {
   message.reactions.cache.forEach((reaction) => {
-    let emojiId = reaction.emoji?.id;
-    if (emojiId) {
-      let roleId = ROLE_REACTIONS[emojiId];
-      if (roleId) {
-        reaction.users.fetch().then((usersColl) => {
-          let users = Array.from(usersColl.values());
-          users.forEach((user) => {
-            channel.guild.members.fetch(user.id).then((member) => {
-              if (member) {
-                member.roles.add(roleId);
-              }
+    if (message.id === monitoredMessageId) {
+      let emojiId = reaction.emoji?.id;
+      if (emojiId) {
+        let roleId = ROLE_REACTIONS[emojiId];
+        if (roleId) {
+          reaction.users.fetch().then((usersColl) => {
+            let users = Array.from(usersColl.values());
+            users.forEach((user) => {
+              channel.guild.members.fetch(user.id).then((member) => {
+                if (member) {
+                  member.roles.add(roleId);
+                }
+              });
             });
           });
-        });
+        } else {
+          // Remove unnecessary emoji reactions
+          reaction.remove();
+        }
       } else {
-        // Remove unnecessary emoji reactions
+        // Remove any other unnecessary reactions
         reaction.remove();
       }
-    } else {
-      // Remove any other unnecessary reactions
-      reaction.remove();
     }
   });
 }
@@ -73,20 +75,22 @@ function handleReactionAdd(
   user: User,
   channel: TextChannel
 ) {
-  let emojiId = event.emoji?.id;
+  if (event.message.id === monitoredMessageId) {
+    let emojiId = event.emoji?.id;
 
-  if (emojiId) {
-    let roleId = ROLE_REACTIONS[emojiId];
-    if (roleId) {
-      let member = channel.guild.member(user);
-      if (member) {
-        member.roles.add(roleId);
+    if (emojiId) {
+      let roleId = ROLE_REACTIONS[emojiId];
+      if (roleId) {
+        let member = channel.guild.member(user);
+        if (member) {
+          member.roles.add(roleId);
+        }
+      } else {
+        event.remove();
       }
     } else {
       event.remove();
     }
-  } else {
-    event.remove();
   }
 }
 
@@ -95,14 +99,16 @@ function handleReactionRemove(
   user: User,
   channel: TextChannel
 ) {
-  let emojiId = event.emoji?.id;
+  if (event.message.id === monitoredMessageId) {
+    let emojiId = event.emoji?.id;
 
-  if (emojiId) {
-    let roleId = ROLE_REACTIONS[emojiId];
-    if (roleId) {
-      let member = channel.guild.member(user);
-      if (member) {
-        member.roles.remove(roleId);
+    if (emojiId) {
+      let roleId = ROLE_REACTIONS[emojiId];
+      if (roleId) {
+        let member = channel.guild.member(user);
+        if (member) {
+          member.roles.remove(roleId);
+        }
       }
     }
   }
