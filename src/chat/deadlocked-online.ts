@@ -214,7 +214,7 @@ function createEmbed(onlinePlayers: AccountStatus[], games: GameLobby[]) {
         (metadata.GameState?.Teams
             .sort((a,b) => a.Score - b.Score)
             .reverse()
-            .map((t) => getGameTeamString(t, isInGame))
+            .map((t) => getGameTeamString(t, isInGame, metadata.GameState?.TeamsEnabled ?? false))
             .join(' ')
         ??
         lobbyPlayers
@@ -239,11 +239,11 @@ function createEmbed(onlinePlayers: AccountStatus[], games: GameLobby[]) {
   return onlineEmbed;
 }
 
-function getGameTeamString(team: MetaDataGameStateTeam, isInGame: boolean) {
-  if (!isInGame)
-    return `\n${team.Name}${team.Players?.sort((a,b) => a.localeCompare(b)).map((p) => `\n  ${p}  `)}`;
+function getGameTeamString(team: MetaDataGameStateTeam, isInGame: boolean, teamsEnabled: boolean) {
+  if (!teamsEnabled && team.Players != null)
+    return `\n  ${team.Players[0]}${isInGame ? ` - ${team.Score}` : ``}  `;
 
-  return `\n${team.Name} - ${team.Score}${team.Players?.sort((a,b) => a.localeCompare(b)).map((p) => `\n  ${p}  `)}`;
+  return `\n${team.Name}${isInGame ? ` - ${team.Score}` : ``}${team.Players?.sort((a,b) => a.localeCompare(b)).map((p) => `\n  ${p}  `)}`;
 }
 
 function getEquipmentNames(game: GameLobby) {
