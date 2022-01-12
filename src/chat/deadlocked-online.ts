@@ -6,6 +6,7 @@ import {
   AccountStatus,
   GameLobby,
   MetaDataSettings,
+  MetaDataGameStateTeam,
   Level,
   GameMode,
   EmojisDEV,
@@ -210,11 +211,18 @@ function createEmbed(onlinePlayers: AccountStatus[], games: GameLobby[]) {
         (metadata.GameInfo ? metadata.GameInfo : '') +
         '\n```\n' +
         '```' +
+        (metadata.GameState?.Teams
+            .sort((a,b) => a.Score - b.Score)
+            .reverse()
+            .map((t) => getGameTeamString(t, isInGame))
+            .join(' ')
+        ??
         lobbyPlayers
           .sort((a, b) => b.localeCompare(a))
           .reverse()
-          .map((p) => `\n  ${p}  `)
-          .join(' ') +
+          .map((p) => `\n  ${p}  `)
+          .join(' '))
+            +
         '```',
     });
   }
@@ -229,6 +237,13 @@ function createEmbed(onlinePlayers: AccountStatus[], games: GameLobby[]) {
   onlineEmbed.addFields({ name: '\u200B', value: '\u200B' });
 
   return onlineEmbed;
+}
+
+function getGameTeamString(team: MetaDataGameStateTeam, isInGame: boolean) {
+  if (!isInGame)
+    return `\n${team.Name}${team.Players?.sort((a,b) => a.localeCompare(b)).map((p) => `\n  ${p}  `)}`;
+
+  return `\n${team.Name} - ${team.Score}${team.Players?.sort((a,b) => a.localeCompare(b)).map((p) => `\n  ${p}  `)}`;
 }
 
 function getEquipmentNames(game: GameLobby) {
