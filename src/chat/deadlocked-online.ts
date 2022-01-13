@@ -6,6 +6,7 @@ import {
   AccountStatus,
   GameLobby,
   MetaDataSettings,
+  MetaDataGameStateTeam,
   Level,
   GameMode,
   EmojisDEV,
@@ -210,11 +211,18 @@ function createEmbed(onlinePlayers: AccountStatus[], games: GameLobby[]) {
         (metadata.GameInfo ? metadata.GameInfo : '') +
         '\n```\n' +
         '```' +
+        (metadata.GameState?.Teams
+            .sort((a,b) => a.Score - b.Score)
+            .reverse()
+            .map((t) => getGameTeamString(t, isInGame, metadata.GameState?.TeamsEnabled ?? false))
+            .join(' ')
+        ??
         lobbyPlayers
           .sort((a, b) => b.localeCompare(a))
           .reverse()
-          .map((p) => `\n  ${p}  `)
-          .join(' ') +
+          .map((p) => `\n  ${p}  `)
+          .join(' '))
+            +
         '```',
     });
   }
@@ -229,6 +237,13 @@ function createEmbed(onlinePlayers: AccountStatus[], games: GameLobby[]) {
   onlineEmbed.addFields({ name: '\u200B', value: '\u200B' });
 
   return onlineEmbed;
+}
+
+function getGameTeamString(team: MetaDataGameStateTeam, isInGame: boolean, teamsEnabled: boolean) {
+  if (!teamsEnabled && team.Players != null)
+    return `\n  ${team.Players[0]}${isInGame ? ` - ${team.Score}` : ``}  `;
+
+  return `\n${team.Name}${isInGame ? ` - ${team.Score}` : ``}${team.Players?.sort((a,b) => a.localeCompare(b)).map((p) => `\n  ${p}  `)}`;
 }
 
 function getEquipmentNames(game: GameLobby) {

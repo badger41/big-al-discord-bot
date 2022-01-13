@@ -36,12 +36,25 @@ export interface GameLobby {
   GameStartDt?: string;
 }
 
+export interface MetaDataGameStateTeam {
+  Id: number;
+  Name: string;
+  Score: number;
+  Players?: string[];
+}
+
+export interface MetaDataGameState {
+  TeamsEnabled: boolean;
+  Teams: MetaDataGameStateTeam[];
+}
+
 export interface MetaDataSettings {
   Weather?: string;
   CustomGameMode?: string;
   CustomMap?: string;
   CustomRules?: string[];
   GameInfo?: string;
+  GameState?: MetaDataGameState;
 }
 
 export enum Level {
