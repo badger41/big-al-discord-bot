@@ -6,6 +6,7 @@ import {
   RoboUYAPlayer,
   UYAPlayerStatus,
   UYAMapNames,
+  UYATimeLimits,
   UYAEmojisDEV,
   UYAEmojisPROD
 } from './types';
@@ -93,6 +94,15 @@ function createEmbed(onlinePlayers: RoboUYAPlayer[], games: RoboUYAGame[]) {
         name:
           decodedName + `  -  (${players.length}/${max_players})${inProgress}`,
         value:
+          '```' +
+          `${game.game_mode} (${game.submode}) @ ${UYAMapNames.get(game.map)}\n` +
+          `Time limit: ${UYATimeLimits.get(game.game_length)}` +
+          `\n${
+            (game.game_mode != 'Siege' ? 'Frag/Cap Limit: ': '') +
+            (game.frag ? game.frag : '') +
+            (game.cap_limit ? game.cap_limit : '')
+              }` +
+          '```' +
           '```' +
           lobbyPlayerNames
             .sort((a, b) => b.localeCompare(a))

@@ -29,11 +29,23 @@ export interface RoboUYAGame {
   status: number;
   map: string;
   game_length: string;
-  frag?: number;
+  frag?: string;
   game_mode: string;
   submode: string;
-  cap_limit?: number;
+  cap_limit?: string;
 }
+
+export const UYATimeLimits = new Map([
+  ["no_time_limit", "None"],
+  ["5_minutes", "5 minutes"],
+  ["10_minutes", "10 minutes"],
+  ["15_minutes", "15 minutes"],
+  ["20_minutes", "20 minutes"],
+  ["25_minutes", "25 minutes"],
+  ["30_minutes", "30 minutes"],
+  ["35_minutes", "35 minutes"]
+]);
+
 
 export const UYAMapNames = new Map([
   ["Bakisi_Isle", "Bakisi Isles"],
