@@ -1,6 +1,15 @@
 import Discord, { TextChannel, MessageEmbed, Message } from 'discord.js';
 import fetch from 'node-fetch';
-import { RoboUYAGame, RoboUYAPlayer } from './types';
+import Moment from 'moment';
+import {
+  RoboUYAGame,
+  RoboUYAPlayer,
+  UYAPlayerStatus,
+  UYAMapNames,
+  UYATimeLimits,
+  UYAEmojisDEV,
+  UYAEmojisPROD
+} from './types';
 import { queueUYAGamesUpdated } from './queue';
 import * as dotenv from 'dotenv';
 /**
@@ -45,20 +54,17 @@ async function processOnlineData(
 }
 
 function createEmbed(onlinePlayers: RoboUYAPlayer[], games: RoboUYAGame[]) {
-  let playerNames = onlinePlayers.map((p) => p.username);
   let onlineEmbed = new MessageEmbed()
     .setColor('#FFA000')
-    .setTitle(`Players Online - ${playerNames.length}`)
+    .setTitle(`Players Online - ${onlinePlayers.length}`)
     //.setThumbnail('https://dl.uyaonline.com/assets/img/dreadzone.png')
     .setFooter('Last Updated')
     .setTimestamp(new Date())
     .setDescription(
-      playerNames.length > 0
+      onlinePlayers.length > 0
         ? '```' +
-            playerNames
-              .sort((a, b) => b.localeCompare(a))
-              .reverse()
-              .map((p) => `\n  ${p}  `)
+            onlinePlayers
+              .map((p) => `\n ${getPlayerStatusCleaned(p)}   ${p.username}  `)
               .join(' ') +
             '```'
         : ' '
@@ -68,9 +74,17 @@ function createEmbed(onlinePlayers: RoboUYAPlayer[], games: RoboUYAGame[]) {
   for (let game of games) {
     const { max_players, players, game_name, started_date } = game;
     let lobbyPlayerNames = players.map((p) => p.username);
+    let timeSinceStarted =
+      started_date > 0 ? Moment.duration(Moment.utc().diff(Moment.unix(started_date)))
+        : null;
 
     if (lobbyPlayerNames.length > 0) {
-      let inProgress = started_date > 0 ? ' (In Progess)' : '';
+
+      let inProgress = timeSinceStarted && timeSinceStarted.asHours() >= 0 ? ` @${Math.floor(timeSinceStarted.asHours())}:${padZeros(
+                    timeSinceStarted.minutes().toString(),
+                    2
+                  )}:${padZeros(timeSinceStarted.seconds().toString(), 2)}` : '';
+
       let decodedName = Buffer.from(game_name, 'base64')
         .toString('ascii')
         .slice(0, 16)
@@ -80,6 +94,15 @@ function createEmbed(onlinePlayers: RoboUYAPlayer[], games: RoboUYAGame[]) {
         name:
           decodedName + `  -  (${players.length}/${max_players})${inProgress}`,
         value:
+          '```' +
+          `${game.game_mode} (${game.submode}) @ ${UYAMapNames.get(game.map)}\n` +
+          `Time limit: ${UYATimeLimits.get(game.game_length)}` +
+          `\n${
+            (game.game_mode != 'Siege' ? 'Frag/Cap Limit: ': '') +
+            (game.frag ? game.frag : '') +
+            (game.cap_limit ? game.cap_limit : '')
+              }` +
+          '```' +
           '```' +
           lobbyPlayerNames
             .sort((a, b) => b.localeCompare(a))
@@ -110,4 +133,13 @@ function createEmbed(onlinePlayers: RoboUYAPlayer[], games: RoboUYAGame[]) {
 export async function checkOnlineUYAPlayers(_client: Discord.Client) {
   client = _client;
   await checkPlayersAndGames();
+}
+
+function getPlayerStatusCleaned(uyaPlayerOnline: RoboUYAPlayer) {
+  let status = UYAPlayerStatus.get(uyaPlayerOnline.status);
+  return status ? ('[' + status + ']').padEnd(10) : '';
+}
+
+function padZeros(str: string, length: number): string {
+  return str.length < length ? padZeros('0' + str, length) : str;
 }

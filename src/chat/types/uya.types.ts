@@ -27,12 +27,43 @@ export interface RoboUYAGame {
   rules_set: number;
   started_date: number;
   status: number;
+  map: string;
+  game_length: string;
+  frag?: string;
+  game_mode: string;
+  submode: string;
+  cap_limit?: string;
 }
 
-export enum UYALevel {
-  'Bakisi Isles' = 40,
-  'Hoven Gorge' = 41,
-}
+export const UYATimeLimits = new Map([
+  ["no_time_limit", "None"],
+  ["5_minutes", "5 minutes"],
+  ["10_minutes", "10 minutes"],
+  ["15_minutes", "15 minutes"],
+  ["20_minutes", "20 minutes"],
+  ["25_minutes", "25 minutes"],
+  ["30_minutes", "30 minutes"],
+  ["35_minutes", "35 minutes"]
+]);
+
+
+export const UYAMapNames = new Map([
+  ["Bakisi_Isle", "Bakisi Isles"],
+  ["Hoven_Gorge", "Hoven Gorge"],
+  ["Outpost_x12", "Outpost X12"],
+  ["Korgon_Outpost", "Korgon Outpost"],
+  ["Metropolis", "Metropolis"],
+  ["Blackwater_City", "Blackwater City"],
+  ["Command_Center", "Command Center"],
+  ["Aquatos_Sewers", "Aquatos Sewers"],
+  ["Blackwater_Dox", "Blackwater Dox"],
+  ["Marcadia_Palace", "Marcadia Palace"],
+]);
+
+export const UYAPlayerStatus = new Map([
+  [2, 'Lobby'],
+  [3, 'In Game']
+]);
 
 export const UYAEmojisDEV = new Map([
   ['n60storm', '<:uyawepn60:876271633592107068>'],
