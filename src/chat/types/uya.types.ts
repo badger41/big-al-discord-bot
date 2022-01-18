@@ -7,6 +7,9 @@ export interface RoboUYAPlayer {
   stats?: string;
   status: number;
   username: string;
+  clan: string;
+  clan_tag: string;
+  region: string;
 }
 
 export interface RoboUYAGame {
