@@ -1,18 +1,14 @@
 import { ChatModel } from '.';
 import { MessageEmbed } from 'discord.js';
+import { SnarkyRemarks } from './types';
 import fetch from 'node-fetch';
 
 const uyaBasicStatCommands: string[] = ['!uyaStats', '!uyastats'];
 const uyaEloCommands: string[] = ['!uyaElo', '!uyaelo'];
-const uyaStatCommands: string[] = uyaBasicStatCommands.concat(uyaEloCommands);
+const uyaAdvStatCommands: string[] = ['!uyaAdvStats', '!uyaadvstats'];
+const uyaStatCommands: string[] = uyaBasicStatCommands.concat(uyaEloCommands).concat(uyaAdvStatCommands);
 
-const snarkyRemarks: string[] = [
-  'pfft, amateur. Give me a challenge next time.',
-  "look's like I'm doing all the work, as usual...",
-  "here's your cheat codes... you can thank me later.",
-  'aaaaaaand done!',
-  "_you're welcome..._",
-];
+
 
 const uyaAnalyticsUrl = process.env.UYA_ANALYTICS_URL;
 
@@ -48,15 +44,38 @@ export async function uyaStatRequest(model: ChatModel) {
         stats['advanced_stats']['elo']['Siege'],
         stats['advanced_stats']['elo']['Deathmatch'],
     )]);
+    model.rawMessage.reply(`${SnarkyRemarks[randomInt(SnarkyRemarks.length)]}`);
     return
   };
 
   // Process basic stats
   if (uyaBasicStatCommands.includes(model.command)) {
-
-
+    model.rawMessage.reply([createStatEmbed(
+        username,
+        stats['stats']['overall']['games_played'],
+        stats['stats']['overall']['kills'],
+        stats['stats']['overall']['deaths'],
+        stats['stats']['overall']['overall_base_dmg'],
+        stats['stats']['overall']['nodes']
+    )]);
+    model.rawMessage.reply(`${SnarkyRemarks[randomInt(SnarkyRemarks.length)]}`);
+    return
   };
 
+
+  // Process basic stats
+  if (uyaAdvStatCommands.includes(model.command)) {
+    model.rawMessage.reply([createAdvStatEmbed(
+        username,
+        stats['advanced_stats']['per_gm']['wins/loss'],
+        stats['advanced_stats']['per_gm']['kills/death'],
+        stats['advanced_stats']['per_min']['avg_game_length'],
+        stats['advanced_stats']['per_min']['kills/min'],
+        stats['stats']['overall']['suicides']
+    )]);
+    model.rawMessage.reply(`${SnarkyRemarks[randomInt(SnarkyRemarks.length)]}`);
+    return
+  };
 }
 
 function createEloEmbed(username: string, overall_elo: number, ctf_elo: number, siege_elo: number, deathmatch_elo: number) {
@@ -85,36 +104,75 @@ function createEloEmbed(username: string, overall_elo: number, ctf_elo: number, 
   return eloEmbed;
 }
 
-function createBasicStatEmbed(username: string,
-                              overall_elo: number,
-                              ctf_elo: number,
-                              siege_elo: number,
-                              deathmatch_elo: number) {
+function createStatEmbed(username: string,
+                              games_played: number,
+                              kills: number,
+                              deaths: number,
+                              base_dmg: number,
+                              nodes: number) {
   let eloEmbed = new MessageEmbed()
     .setColor('#0080FF')
     .setTitle(username)
-    .setDescription('UYA ELO');
+    .setDescription('Basic Stats');
 
   eloEmbed.addFields({
-    name: 'Overall',
-    value: overall_elo
+    name: 'Games Played',
+    value: games_played
   });
   eloEmbed.addFields({
-    name: 'CTF',
-    value: ctf_elo
+    name: 'Total Kills',
+    value: kills
   });
   eloEmbed.addFields({
-    name: 'Siege',
-    value: siege_elo
+    name: 'Total Deaths',
+    value: deaths
   });
   eloEmbed.addFields({
-    name: 'Deathmatch',
-    value: deathmatch_elo
+    name: 'Total Base Damage',
+    value: base_dmg
+  });
+  eloEmbed.addFields({
+    name: 'Total Nodes Captured',
+    value: nodes
   });
 
   return eloEmbed;
 }
 
+function createAdvStatEmbed(username: string,
+                              win_loss: number,
+                              kd: number,
+                              avg_game_len: number,
+                              kills_per_min: number,
+                              suicides: number) {
+  let eloEmbed = new MessageEmbed()
+    .setColor('#0080FF')
+    .setTitle(username)
+    .setDescription('Advanced Stats');
+
+  eloEmbed.addFields({
+    name: 'Win/Loss Ratio',
+    value: win_loss
+  });
+  eloEmbed.addFields({
+    name: 'Kill/Death Ratio',
+    value: kd
+  });
+  eloEmbed.addFields({
+    name: 'Average Game Length (minutes)',
+    value: avg_game_len
+  });
+  eloEmbed.addFields({
+    name: 'Kills per minute',
+    value: kills_per_min
+  });
+  eloEmbed.addFields({
+    name: 'Total Suicides',
+    value: suicides
+  });
+
+  return eloEmbed;
+}
 /**
  * Get the stats from Nicks endpoint
  */
@@ -129,4 +187,8 @@ async function getStatsFromEndpoint(username: string) {
     console.log("uh oh..");
     throw new Error(await result.json());
   }
+}
+
+function randomInt(max: number) {
+  return Math.floor(Math.random() * max);
 }

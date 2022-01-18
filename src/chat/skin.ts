@@ -1,5 +1,6 @@
 import { ChatModel } from '.';
 import { MessageEmbed } from 'discord.js';
+import { SnarkyRemarks } from './types';
 
 interface SkinModel {
   key: string;
@@ -13,13 +14,9 @@ interface SkinCode {
 }
 
 const skinCommands: string[] = ['!skinCode', '!unlockSkins', '!skins'];
-const snarkyRemarks: string[] = [
-  'pfft, amateur. Give me a challenge next time.',
-  "look's like I'm doing all the work, as usual...",
-  "here's your cheat codes... you can thank me later.",
-  'aaaaaaand done!',
-  "_you're welcome..._",
-];
+
+const snarkyRemarks = SnarkyRemarks.concat(["here's your cheat codes... you can thank me later."])
+
 const skins = [
   { key: 'UYA', name: 'Nefarious', hexCode: 0xe1234567 },
   { key: 'UYA', name: 'Dan', hexCode: 0xe76b492c },
@@ -37,6 +34,7 @@ export function skinRequest(model: ChatModel) {
       "you didn't specify a username! \n `!skins Agent Moose` for example."
     );
   } else {
+
     const username = model.args.join(' ').trim();
     const usernameCode = processUsername(username.toUpperCase());
     const codes = getSkinCodes(usernameCode);
