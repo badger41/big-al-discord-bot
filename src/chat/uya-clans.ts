@@ -57,7 +57,7 @@ export async function uyaClanRequest(model: ChatModel) {
 }
 
 /**
- * Get the stats from Nicks endpoint
+ * Get the stats from UYA endpoint
  */
 async function getClanFromEndpoint(clanname: string) {
   console.log(`querying uya-clans for ${clanname} at: ${apiUrl}/robo/clans/name/${clanname}`);
