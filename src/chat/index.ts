@@ -11,11 +11,13 @@ import { queueRequest } from "./queue";
 import { uyaStatRequest } from "./uya-stats";
 import { uyaClanRequest } from "./uya-clans";
 import { uyaAltRequest} from "./uya-alts";
+import { uyaTeamsRequest} from "./uya-teams";
 
 export const commands = [
   skinRequest,
   queueRequest,
   uyaStatRequest,
   uyaClanRequest,
-  uyaAltRequest
+  uyaAltRequest,
+  uyaTeamsRequest
 ];
