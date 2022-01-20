@@ -33,20 +33,23 @@ export async function uyaClanRequest(model: ChatModel) {
 
   let clanEmbed = new MessageEmbed()
     .setColor('#0080FF')
-    .setTitle(clanname)
-    .setDescription(clanname);
+    .setTitle('**' + clan_info['clan_name'] + '**');
 
   clanEmbed.addFields({
     name: 'Leader',
-    value: clan_info['leader_account_name']
+    value: '```' + clan_info['leader_account_name'] + '```'
   });
   clanEmbed.addFields({
     name: 'Tag',
-    value: clan_info['clan_tag']
+    value: '```' + clan_info['clan_tag'] + '```'
   });
   clanEmbed.addFields({
     name: 'Stats',
-    value: `Kills: ${clan_info['kills']}\nDeaths: ${clan_info['deaths']}\nWins: ${clan_info['wins']}\nLosses: ${clan_info['losses']}`
+    value: '```' + 'Kills:'.padEnd(10) +  `${clan_info['kills']}\n` + 'Deaths: '.padEnd(10) + `${clan_info['deaths']}\n` + 'Wins: '.padEnd(10) + `${clan_info['wins']}\n` + 'Losses: '.padEnd(10) + `${clan_info['losses']}` + '```'
+  });
+  clanEmbed.addFields({
+    name: 'Members',
+    value: '```' + clan_info['members'].join(', ') + '```'
   });
 
   model.rawMessage.reply([clanEmbed]);
