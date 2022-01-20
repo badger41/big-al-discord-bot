@@ -64,7 +64,7 @@ function createEmbed(onlinePlayers: RoboUYAPlayer[], games: RoboUYAGame[]) {
       onlinePlayers.length > 0
         ? '```' +
             onlinePlayers
-              .map((p) => `\n ${('[' + p.region + ']').padEnd(6)} ${getPlayerStatusCleaned(p)} ${p.username} ${getPlayerClanTagCleaned(p)} `)
+              .map((p) => `\n ${('[' + p.region + ']').padEnd(6)} ${p.username} ${getPlayerClanTagCleaned(p)} `)
               .join(' ') +
             '```'
         : ' '
@@ -76,10 +76,13 @@ function createEmbed(onlinePlayers: RoboUYAPlayer[], games: RoboUYAGame[]) {
       clans.add([player.clan, player.clan_tag])
     }
 
+    let clans_check = new Set<string>();
+
     let result_string = '';
     for (let clan_and_tag of clans) {
-      if (clan_and_tag[0] != '') {
+      if (clan_and_tag[0] != '' && !clans_check.has(clan_and_tag[0])) {
         result_string += `${clan_and_tag[0]} [${clan_and_tag[1]}]\n`
+        clans_check.add(clan_and_tag[0])
       }
     }
 
@@ -129,9 +132,9 @@ function createEmbed(onlinePlayers: RoboUYAPlayer[], games: RoboUYAGame[]) {
             (game.game_mode != 'Siege' ? 'Frag/Cap Limit: ': '') +
             (game.frag ? game.frag : '') +
             (game.cap_limit ? game.cap_limit : '')
-              }` +
-          '```' +
-          '```' +
+              }` + '\nPlayers:' +
+          // '```' +
+          // '```' +
           lobbyPlayerNames
             .sort((a, b) => b.localeCompare(a))
             .reverse()
