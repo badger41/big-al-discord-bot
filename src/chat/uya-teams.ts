@@ -63,7 +63,7 @@ export async function uyaTeamsRequest(model: ChatModel) {
  */
 async function getTeamsFromEndpoint(game: string) {
   console.log(`querying uya-teams for ${game} at: ${uyaAnalyticsUrl}/model/${game}`);
-  let result = await fetch(`${uyaAnalyticsUrl}/model/${game}`);
+  let result = await fetch(`${uyaAnalyticsUrl}/model/index/${game}`);
 
   if (result.ok) {
     console.log("Result OK!");
