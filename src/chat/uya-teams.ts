@@ -43,7 +43,7 @@ export async function uyaTeamsRequest(model: ChatModel) {
   let i = 0;
 
   for (let [key, value] of Object.entries(teams)) {
-    let v = typeof value === 'number' ? round2Places(value) : 0;
+    let v = typeof value === 'number' ? round2Places(value*100) : 0;
     description += `Team ${i == 0 ? 'A' : 'B'} (${v}% win): ` + key + '\n';
     i+= 1;
   }
