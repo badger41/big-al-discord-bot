@@ -62,8 +62,7 @@ export async function uyaStatRequest(model: ChatModel) {
     return
   };
 
-
-  // Process basic stats
+  // Process adv stats
   if (uyaAdvStatCommands.includes(model.command)) {
     model.rawMessage.reply([createAdvStatEmbed(
         username,

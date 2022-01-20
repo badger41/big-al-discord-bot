@@ -9,9 +9,12 @@ export * from "./types";
 import { skinRequest } from "./skin";
 import { queueRequest } from "./queue";
 import { uyaStatRequest } from "./uya-stats";
+import { uyaClanRequest } from "./uya-clans";
 
 export const commands = [
   skinRequest,
   queueRequest,
   uyaStatRequest,
+  uyaClanRequest
 ];
+
