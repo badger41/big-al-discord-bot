@@ -243,7 +243,7 @@ function getGameTeamString(team: MetaDataGameStateTeam, isInGame: boolean, teams
   if (!teamsEnabled && team.Players != null)
     return `\n  ${team.Players[0]}${isInGame ? ` - ${team.Score}` : ``}  `;
 
-  return `\n${team.Name}${isInGame ? ` - ${team.Score}` : ``}${team.Players?.sort((a,b) => a.localeCompare(b)).map((p) => `\n  ${p}  `)}`;
+  return `\n${team.Name}${isInGame ? ` - ${team.Score}` : ``}${team.Players?.sort((a,b) => a.localeCompare(b)).map((p) => `\n  ${p}  `).join(' ')}`;
 }
 
 function getEquipmentNames(game: GameLobby) {
