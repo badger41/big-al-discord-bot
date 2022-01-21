@@ -64,12 +64,43 @@ function createEmbed(onlinePlayers: RoboUYAPlayer[], games: RoboUYAGame[]) {
       onlinePlayers.length > 0
         ? '```' +
             onlinePlayers
-              .map((p) => `\n ${getPlayerStatusCleaned(p)}   ${p.username}  `)
+              .map((p) => `\n ${('[' + p.region + ']').padEnd(6)} ${p.username} ${getPlayerClanTagCleaned(p)} `)
               .join(' ') +
             '```'
         : ' '
-    )
-    .addFields({ name: '\u200B', value: 'Active Games:' });
+    );
+
+    // Clans section ===============================================================
+    let clans = new Set<string[]>();
+    for (let player of onlinePlayers) {
+      clans.add([player.clan, player.clan_tag])
+    }
+
+    let clans_check = new Set<string>();
+
+    let result_string = '';
+    for (let clan_and_tag of clans) {
+      if (clan_and_tag[0] != '' && !clans_check.has(clan_and_tag[0])) {
+        result_string += `${clan_and_tag[0]} [${clan_and_tag[1]}]\n`
+        clans_check.add(clan_and_tag[0])
+      }
+    }
+
+    if (result_string == '') {
+      onlineEmbed.addFields({
+        name: 'No Clans online',
+        value: '\u200B',
+      });
+    }
+    else {
+      onlineEmbed.addFields({
+        name: 'Clans Online',
+        value: '```' + result_string + '```',
+      });
+    }
+
+  // Active Games section ===============================================================
+  onlineEmbed.addFields({ name: '\u200B', value: 'Active Games:' });
 
   for (let game of games) {
     const { max_players, players, game_name, started_date } = game;
@@ -101,9 +132,9 @@ function createEmbed(onlinePlayers: RoboUYAPlayer[], games: RoboUYAGame[]) {
             (game.game_mode != 'Siege' ? 'Frag/Cap Limit: ': '') +
             (game.frag ? game.frag : '') +
             (game.cap_limit ? game.cap_limit : '')
-              }` +
-          '```' +
-          '```' +
+              }` + '\nPlayers:' +
+          // '```' +
+          // '```' +
           lobbyPlayerNames
             .sort((a, b) => b.localeCompare(a))
             .reverse()
@@ -121,7 +152,8 @@ function createEmbed(onlinePlayers: RoboUYAPlayer[], games: RoboUYAGame[]) {
     });
   }
 
-  onlineEmbed.addFields({ name: '\u200B', value: '\u200B' });
+
+
 
   return onlineEmbed;
 }
@@ -137,7 +169,12 @@ export async function checkOnlineUYAPlayers(_client: Discord.Client) {
 
 function getPlayerStatusCleaned(uyaPlayerOnline: RoboUYAPlayer) {
   let status = UYAPlayerStatus.get(uyaPlayerOnline.status);
-  return status ? ('[' + status + ']').padEnd(10) : '';
+  return status ? ('[' + status + ']').padEnd(9) : '';
+}
+
+function getPlayerClanTagCleaned(uyaPlayerOnline: RoboUYAPlayer) {
+  let clan_tag = uyaPlayerOnline.clan_tag;
+  return clan_tag != '' ? `[${clan_tag}]` : '';
 }
 
 function padZeros(str: string, length: number): string {

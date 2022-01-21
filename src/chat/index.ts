@@ -8,5 +8,16 @@ export * from "./types";
  */
 import { skinRequest } from "./skin";
 import { queueRequest } from "./queue";
+import { uyaStatRequest } from "./uya-stats";
+import { uyaClanRequest } from "./uya-clans";
+import { uyaAltRequest} from "./uya-alts";
+import { uyaTeamsRequest} from "./uya-teams";
 
-export const commands = [skinRequest,queueRequest];
+export const commands = [
+  skinRequest,
+  queueRequest,
+  uyaStatRequest,
+  uyaClanRequest,
+  uyaAltRequest,
+  uyaTeamsRequest
+];
