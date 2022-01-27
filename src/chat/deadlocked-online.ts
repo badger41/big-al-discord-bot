@@ -28,6 +28,7 @@ const environment = process.env.ENVIRONMENT;
 let token: string;
 let client: Discord.Client;
 let existingMessage: Message;
+let isExecuting: boolean;
 
 const Emojis = environment === 'PROD' ? EmojisPROD : EmojisDEV;
 
@@ -138,13 +139,21 @@ async function processOnlinePlayers(
  */
 export async function checkOnlineDLPlayers(_client: Discord.Client) {
   client = _client;
-  if (!token) await authenticate();
+  if (isExecuting) return;
+  try {
+    isExecuting = true;
+    if (!token) await authenticate();
 
-  let accountStatuses = await getPlayersAndGames();
-  let games = await getGames();
+    let accountStatuses = await getPlayersAndGames();
+    let games = await getGames();
 
-  queueDLGamesUpdated(_client, games);
-  processOnlinePlayers(accountStatuses, games);
+    queueDLGamesUpdated(_client, games);
+    processOnlinePlayers(accountStatuses, games);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    isExecuting = false;
+  }
 }
 
 function createEmbed(onlinePlayers: AccountStatus[], games: GameLobby[]) {
