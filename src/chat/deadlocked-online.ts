@@ -65,10 +65,10 @@ async function authenticate() {
     }
   );
   if (result.ok) {
-    let response = await result.json() as any;
+    let response = await result.json();
     token = response['Token'];
   } else {
-    throw new Error(await result.json() as string);
+    throw new Error(await result.json());
   }
 }
 
@@ -89,7 +89,7 @@ async function getPlayersAndGames() {
   if (result.ok) {
     return await result.json();
   } else {
-    throw new Error(await result.json() as string);
+    throw new Error(await result.json());
   }
 }
 
@@ -110,7 +110,7 @@ export async function getGames() {
   if (result.ok) {
     return await result.json();
   } else {
-    throw new Error(await result.json() as string);
+    throw new Error(await result.json());
   }
 }
 
@@ -145,8 +145,8 @@ export async function checkOnlineDLPlayers(_client: Discord.Client) {
     isExecuting = true;
     if (!token) await authenticate();
 
-    let accountStatuses = await getPlayersAndGames() as AccountStatus[];
-    let games = await getGames() as GameLobby[];
+    let accountStatuses = await getPlayersAndGames();
+    let games = await getGames();
 
     queueDLGamesUpdated(_client, games);
     processOnlinePlayers(accountStatuses, games);
