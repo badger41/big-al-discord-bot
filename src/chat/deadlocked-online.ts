@@ -65,10 +65,10 @@ async function authenticate() {
     }
   );
   if (result.ok) {
-    let response = await result.json();
+    let response = await result.json() as any;
     token = response['Token'];
   } else {
-    throw new Error(await result.json());
+    throw new Error(await result.json() as string);
   }
 }
 
@@ -76,7 +76,6 @@ async function authenticate() {
  * Grab all online accounts
  */
 async function getPlayersAndGames() {
-  console.log('checking dl players');
   const result = await fetch(
     `https://${serverUrl}:${serverPort}/Account/getOnlineAccounts`,
     {
@@ -90,7 +89,7 @@ async function getPlayersAndGames() {
   if (result.ok) {
     return await result.json();
   } else {
-    throw new Error(await result.json());
+    throw new Error(await result.json() as string);
   }
 }
 
@@ -98,7 +97,6 @@ async function getPlayersAndGames() {
  * Grab all current games
  */
 export async function getGames() {
-  console.log('checking dl games');
   const result = await fetch(
     `https://${serverUrl}:${serverPort}/api/Game/list`,
     {
@@ -112,7 +110,7 @@ export async function getGames() {
   if (result.ok) {
     return await result.json();
   } else {
-    throw new Error(await result.json());
+    throw new Error(await result.json() as string);
   }
 }
 
@@ -140,12 +138,15 @@ async function processOnlinePlayers(
 export async function checkOnlineDLPlayers(_client: Discord.Client) {
   client = _client;
   if (isExecuting) return;
+
+  console.log(`${new Date()}: dl online players tick start`)
+
   try {
     isExecuting = true;
     if (!token) await authenticate();
 
-    let accountStatuses = await getPlayersAndGames();
-    let games = await getGames();
+    let accountStatuses = await getPlayersAndGames() as AccountStatus[];
+    let games = await getGames() as GameLobby[];
 
     queueDLGamesUpdated(_client, games);
     processOnlinePlayers(accountStatuses, games);
@@ -154,6 +155,8 @@ export async function checkOnlineDLPlayers(_client: Discord.Client) {
   } finally {
     isExecuting = false;
   }
+
+  console.log(`${new Date()}: dl online players tick end`)
 }
 
 function createEmbed(onlinePlayers: AccountStatus[], games: GameLobby[]) {
