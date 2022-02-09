@@ -1,15 +1,15 @@
 const UYA_REACTIONS: { [emoji: string]: string } = {
-  // Nefarious - UYA Players
-  '752680088125964418': '807713673132113951',
+  // Gold Bolt - UYA Players
+  '940392965052989511': '936437325670539264',
   // Sheepinator Icon - UYA Casuals
-  '876267367766843402': '909561632995282994',
+  '938595002882347039': '936437402942210078',
 };
 
 const DL_REACTIONS: { [emoji: string]: string } = {
-  // Vox - DL Players
-  '752472561891409931': '807713584360587264',
+  // Dreadzone - DL Players
+  '938595002928496710': '936437380016144425',
   // Arbiter Icon - DL Casuals
-  '873719153964486686': '883145123322527845',
+  '938587265691693088': '936437431106961409',
 };
 
 export const ROLE_REACTIONS = {

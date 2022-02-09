@@ -81,13 +81,13 @@ export const UYAEmojisDEV = new Map([
 ]);
 
 export const UYAEmojisPROD = new Map([
-  ['n60storm', '<:uyawepn60:876266758544187452>'],
-  ['fluxrifle', '<:uyawepflux:876266637723058197>'],
-  ['blitzgun', '<:uyawepblitz:876266829360820224>'],
-  ['rockets', '<:uyaweprockets:876266938056183818>'],
-  ['gravitybomb', '<:uyawepgbomb:876267162011066390>'],
-  ['mineglove', '<:uyawepmines:876267260568825918>'],
-  ['morphoray', '<:uyawepmorph:876267367766843402>'],
-  ['lavagun', '<:uyaweplava:876267450499477526>'],
-  ['chargeboots', '<:uyagadchargeboots:876268191410683985>'],
+  ['n60storm', '<:uyawepn60:938595002806837281>'],
+  ['fluxrifle', '<:uyawepflux:938595002844577852>'],
+  ['blitzgun', '<:uyawepblitz:938595002836197426>'],
+  ['rockets', '<:uyaweprockets:938595002953658428>'],
+  ['gravitybomb', '<:uyawepgbomb:938595002941055047>'],
+  ['mineglove', '<:uyawepmines:938595002643255338>'],
+  ['morphoray', '<:uyawepmorph:938595002882347039>'],
+  ['lavagun', '<:uyaweplava:938595002676838431>'],
+  ['chargeboots', '<:uyagadchargeboots:938595002949439498>'],
 ]);
